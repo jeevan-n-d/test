@@ -1,26 +1,22 @@
-pipeline
-{
+pipeline {
+    agent { label 'DevServer' }
 
-agent none
-stages{
-    stage('build')
-    {
-        steps{
-            echo "This is build stage"
+    stages {
+        stage('build') {
+            steps {
+                echo "Running on ${env.NODE_NAME}"
+                sh 'hostname'
+            }
+        }
+        stage('test') {
+            steps {
+                echo "Testing..."
+            }
+        }
+        stage('deploy') {
+            steps {
+                echo "Deploying..."
+            }
         }
     }
-    stage('test')
-    {
-        steps{
-            echo "This is test stage"
-        }
-    }
-    stage('deploy')
-    {
-        steps{
-            echo "This is deploy stage"
-        }
-    }
-
-}
 }
