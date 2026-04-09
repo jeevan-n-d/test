@@ -1,0 +1,18 @@
+pipeline {
+    agent none   // ❗ IMPORTANT
+
+    stages {
+        stage('build') {
+            agent { label 'DevServer' }
+            ...
+        }
+        stage('test') {
+            agent { label 'DevServer' }
+            ...
+        }
+        stage('deploy') {
+            agent { label 'ProdServer' }
+            ...
+        }
+    }
+}
