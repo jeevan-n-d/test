@@ -2,48 +2,75 @@ pipeline {
     agent { label 'DevServer' }
 
     parameters {
-        string defaultValue: 'gowda', name: 'LASTNAME'}
+        choice(name: 'select_env', choices: ['dev', 'prod'])
+    }
 
-    environment { NAME = "jeeva"}
+    environment {
+        NAME = "jeeva"
+    }
 
     tools {
         maven 'myMaven'
     }
 
     stages {
-        stage('build') {
+
+        stage('Build') {
             steps {
-                dir('java') {   
-                    sh 'mvn clean package'
-                    echo "Hello ${env.NAME} ${params.LASTNAME}"
+                dir('java') {
+                    sh 'mvn clean package -DskipTests=true'
+                    echo "Hello ${env.NAME}"
                 }
             }
         }
-    
 
-    stage ('test')
-    {
-        parallel {
-            stage('testA'){
-                steps {
-                    echo "This is test A"
+        stage('Test') {
+            parallel {
+                stage('TestA') {
+                    steps {
+                        dir('java') {
+                            echo "This is test A"
+                            sh 'mvn test'
+                        }
+                    }
+                }
+                stage('TestB') {
+                    steps {
+                        dir('java') {
+                            echo "This is test B"
+                            sh 'mvn test'
+                        }
+                    }
                 }
             }
-            stage('testB'){
-                steps {
-                    echo "This is test B"
+        }
+
+        stage('deploy_dev')
+        {
+            when {
+                expression { params.select_env == 'dev' }
+                beforeAgent true
                 }
+            agent { label 'DevServer' }
+            steps{
+                dir("java/")
+                {
+                    unstash "maven-build"
+                }
+                sh """
+                ls target/
+                java -jar target/*.jar
+                """
             }
         }
     }
 
-
-    }
-
- post {
+    post {
         success {
-            archiveArtifacts artifacts: '**/target/*.jar'
+            dir("java/")
+            {
+                stash name: "maven-build",includes:"target/*.jar"
+            }
         }
     }
-
 }
