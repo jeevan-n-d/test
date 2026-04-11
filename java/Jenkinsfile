@@ -15,15 +15,35 @@ pipeline {
             steps {
                 dir('java') {   
                     sh 'mvn clean package'
-                    echo 'Hello $NAME ${params.LASTNAME}'
+                    echo "Hello ${env.NAME} ${params.LASTNAME}"
+                }
+            }
+        }
+    
+
+    stage ('test')
+    {
+        parallel {
+            stage('testA'){
+                steps {
+                    echo "This is test A"
+                }
+            }
+            stage('testB'){
+                steps {
+                    echo "This is test B"
                 }
             }
         }
     }
 
-    post {
+
+    }
+
+ post {
         success {
             archiveArtifacts artifacts: '**/target/*.jar'
         }
     }
+
 }
