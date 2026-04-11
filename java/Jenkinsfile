@@ -1,6 +1,11 @@
 pipeline {
     agent { label 'DevServer' }
 
+    parameters {
+        string defaultValue: 'gowda', name: 'LASTNAME'}
+
+    environment { NAME = "jeeva"}
+
     tools {
         maven 'myMaven'
     }
@@ -10,6 +15,7 @@ pipeline {
             steps {
                 dir('java') {   
                     sh 'mvn clean package'
+                    echo 'Hello $NAME ${params.LASTNAME}'
                 }
             }
         }
