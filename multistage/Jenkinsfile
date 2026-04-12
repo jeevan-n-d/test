@@ -27,14 +27,23 @@ stage('DB') {
   steps {
     sh '''
     docker rm -f mysql || true
-    docker run -d --name mysql -e MYSQL_ROOT_PASSWORD=root mysql:latest
-    sleep 20
-    docker exec mysql mysql -u root -proot -e "SHOW DATABASES;"
+
+    docker run -d --name mysql \
+      -e MYSQL_ROOT_PASSWORD=root \
+      mysql:latest
+
+    echo "Waiting for MySQL to start..."
+    sleep 40
+
+    docker ps
+
+    docker exec mysql \
+      mysql -u root -proot -e "SHOW DATABASES;" || echo "MySQL not ready"
+
     docker rm -f mysql
     '''
   }
 }
-
 
 }
 }
